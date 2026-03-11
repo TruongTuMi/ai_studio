@@ -1,7 +1,42 @@
 import streamlit as st
 import google.generativeai as genai
 
-# ... (Giữ nguyên phần CSS và Header ở trên) ...
+# Cấu hình trang
+st.set_page_config(page_title="CTU Text Generator", page_icon="🎓", layout="centered")
+
+# CSS tùy chỉnh màu xanh CTU
+st.markdown("""
+    <style>
+    .stButton>button { background-color: #00529c; color: white; border-radius: 8px; font-weight: bold; width: 100%; }
+    .stButton>button:hover { background-color: #004080; color: white; }
+    .stTextInput>div>div>input, .stTextArea>div>textarea { border-radius: 8px; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Header
+col1, col2 = st.columns([1, 5])
+with col1:
+    st.image("https://upload.wikimedia.org/wikipedia/vi/6/6c/Logo_Dai_hoc_Can_Tho.svg", width=80)
+with col2:
+    st.title("CTU Text Generator")
+    st.write("Công cụ hỗ trợ sinh viên Đại học Cần Thơ viết email và đơn từ học tập.")
+
+st.divider()
+
+# Form nhập liệu
+st.subheader("📝 Thông tin yêu cầu")
+
+ho_ten = st.text_input("Họ và tên sinh viên:", placeholder="VD: Dương Chí Trường")
+
+col_mssv, col_khoa = st.columns(2)
+with col_mssv:
+    mssv = st.text_input("Mã số sinh viên (MSSV):", placeholder="VD: DC25V7X631")
+with col_khoa:
+    khoa = st.text_input("Khoa / Viện:", placeholder="VD: CNTT & TT")
+
+yeu_cau = st.text_area("Nội dung cần viết (*):", placeholder="VD: Viết email xin phép thầy cho vắng thi giữa kỳ môn Cấu trúc dữ liệu vì bị ốm...", height=100)
+
+api_key = st.text_input("Nhập Gemini API Key của bạn:", type="password", help="Lấy API Key miễn phí tại Google AI Studio")
 
 # Xử lý tạo văn bản
 if st.button("Tạo văn bản 🚀"):
