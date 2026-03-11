@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 
 # Cấu hình trang (Tiêu đề, icon, layout)
 st.set_page_config(page_title="CTU Text Generator", page_icon="🎓", layout="centered")
