@@ -35,16 +35,16 @@ with col_khoa:
 
 yeu_cau = st.text_area("Nội dung cần viết (*):", placeholder="VD: Viết email xin phép thầy cho vắng thi giữa kỳ môn Cấu trúc dữ liệu vì bị ốm...", height=100)
 
-api_key = st.text_input("Nhập Gemini API Key của bạn:", type="password", help="Lấy API Key miễn phí tại Google AI Studio")
+# Lấy API Key từ hệ thống bảo mật của Streamlit
+api_key = st.secrets["GEMINI_API_KEY"]
 
-# Xử lý tạo văn bản
+# Xử lý khi bấm nút
 if st.button("Tạo văn bản 🚀"):
     if not yeu_cau:
         st.warning("Vui lòng nhập nội dung yêu cầu của bạn!")
-    elif not api_key:
-        st.warning("Vui lòng nhập Gemini API Key!")
     else:
         try:
+            # Khởi tạo client Gemini với Key lấy từ Secrets
             client = genai.Client(api_key=api_key)
             
             prompt = f"""
@@ -75,4 +75,4 @@ if st.button("Tạo văn bản 🚀"):
             st.text_area("Bạn có thể copy đoạn văn bản dưới đây:", value=response.text, height=300)
             
         except Exception as e:
-            st.error(f"Đã có lỗi xảy ra. Vui lòng kiểm tra lại API Key. Chi tiết lỗi: {e}")
+            st.error(f"Đã có lỗi xảy ra. Chi tiết lỗi: {e}")
