@@ -15,7 +15,7 @@ st.markdown("""
 # Header
 col1, col2 = st.columns([1, 5])
 with col1:
-    st.image("https://upload.wikimedia.org/wikipedia/vi/6/64/Logo_Đại_học_Cần_Thơ.svg", width=80)
+    st.image("https://upload.wikimedia.org/wikipedia/vi/6/6c/Logo_Dai_hoc_Can_Tho.svg", width=80)
 with col2:
     st.title("CTU Text Generator")
     st.write("Công cụ hỗ trợ sinh viên Đại học Cần Thơ viết email và đơn từ học tập.")
