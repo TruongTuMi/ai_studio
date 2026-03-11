@@ -1,42 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Cấu hình trang
-st.set_page_config(page_title="CTU Text Generator", page_icon="🎓", layout="centered")
-
-# CSS tùy chỉnh màu xanh CTU
-st.markdown("""
-    <style>
-    .stButton>button { background-color: #00529c; color: white; border-radius: 8px; font-weight: bold; width: 100%; }
-    .stButton>button:hover { background-color: #004080; color: white; }
-    .stTextInput>div>div>input, .stTextArea>div>textarea { border-radius: 8px; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Header
-col1, col2 = st.columns([1, 5])
-with col1:
-    st.image("https://upload.wikimedia.org/wikipedia/vi/6/6c/Logo_Dai_hoc_Can_Tho.svg", width=80)
-with col2:
-    st.title("CTU Text Generator")
-    st.write("Công cụ hỗ trợ sinh viên Đại học Cần Thơ viết email và đơn từ học tập.")
-
-st.divider()
-
-# Form nhập liệu
-st.subheader("📝 Thông tin yêu cầu")
-
-ho_ten = st.text_input("Họ và tên sinh viên:", placeholder="VD: Dương Chí Trường")
-
-col_mssv, col_khoa = st.columns(2)
-with col_mssv:
-    mssv = st.text_input("Mã số sinh viên (MSSV):", placeholder="VD: DC25V7X631")
-with col_khoa:
-    khoa = st.text_input("Khoa / Viện:", placeholder="VD: CNTT & TT")
-
-yeu_cau = st.text_area("Nội dung cần viết (*):", placeholder="VD: Viết email xin phép thầy cho vắng thi giữa kỳ môn Cấu trúc dữ liệu vì bị ốm...", height=100)
-
-api_key = st.text_input("Nhập Gemini API Key của bạn:", type="password", help="Lấy API Key miễn phí tại Google AI Studio")
+# ... (Giữ nguyên phần CSS và Header ở trên) ...
 
 # Xử lý tạo văn bản
 if st.button("Tạo văn bản 🚀"):
@@ -46,8 +11,11 @@ if st.button("Tạo văn bản 🚀"):
         st.warning("Vui lòng nhập Gemini API Key!")
     else:
         try:
-            # --- PHẦN SỬA LỖI CHÍNH Ở ĐÂY ---
+            # 1. Cấu hình API
             genai.configure(api_key=api_key)
+            
+            # 2. Đổi tên model thành 'gemini-1.5-flash' (Bỏ chữ 'models/') 
+            # hoặc dùng 'gemini-1.5-flash-latest' để đảm bảo luôn chạy bản mới nhất
             model = genai.GenerativeModel('gemini-1.5-flash')
             
             prompt = f"""
@@ -63,22 +31,25 @@ if st.button("Tạo văn bản 🚀"):
             - Văn phong trang trọng, cực kỳ lịch sự, tôn sư trọng đạo đúng chất sinh viên miền Tây.
             - Phải nhắc đến các thông tin định danh (Họ tên, MSSV, Khoa) một cách tự nhiên.
             - Kết thúc bằng lời chúc sức khỏe Thầy/Cô và lời cảm ơn trân trọng.
-            - Nếu nội dung liên quan đến địa danh, hãy ưu tiên các địa danh của CTU (như Khu II, Hội trường Rùa...).
             """
             
             with st.spinner("Đang tạo văn bản..."):
+                # Dùng generate_content thay vì các lệnh cũ
                 response = model.generate_content(prompt)
             
-            st.success("Tạo văn bản thành công!")
-            st.subheader("✨ Kết quả")
-            # Hiển thị trong text_area để sinh viên dễ copy
-            st.text_area("Nội dung tạo ra (Bạn có thể copy trực tiếp):", value=response.text, height=400)
-            
-            # Thêm nút tải file để tăng tính chuyên nghiệp
-            st.download_button("Tải văn bản về máy (.txt)", response.text, file_name="van_ban_ctu.txt")
+            if response.text:
+                st.success("Tạo văn bản thành công!")
+                st.subheader("✨ Kết quả")
+                st.text_area("Nội dung tạo ra (Bạn có thể copy trực tiếp):", value=response.text, height=400)
+                st.download_button("Tải văn bản về máy (.txt)", response.text, file_name="van_ban_ctu.txt")
             
         except Exception as e:
-            st.error(f"Đã có lỗi xảy ra. Vui lòng kiểm tra lại API Key. Chi tiết lỗi: {e}")
-
-st.divider()
-st.caption("© 2024 Nhóm sinh viên CTU - Ứng dụng AI trong giáo dục")
+            # Nếu vẫn lỗi 1.5-flash, thử dùng model 'gemini-pro' (Dòng này để dự phòng)
+            st.error(f"Lỗi: {e}. Đang thử kết nối lại với máy chủ dự phòng...")
+            try:
+                model_backup = genai.GenerativeModel('gemini-pro')
+                response = model_backup.generate_content(prompt)
+                st.success("Đã kết nối qua máy chủ dự phòng thành công!")
+                st.text_area("Kết quả dự phòng:", value=response.text, height=400)
+            except:
+                st.error("Không thể kết nối với mô hình AI. Vui lòng kiểm tra lại API Key hoặc vùng lãnh thổ.")
