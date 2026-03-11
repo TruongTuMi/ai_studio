@@ -1,35 +1,20 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Cấu hình trang (Tiêu đề, icon, layout)
+# Cấu hình trang
 st.set_page_config(page_title="CTU Text Generator", page_icon="🎓", layout="centered")
 
-# CSS tùy chỉnh để có màu xanh đặc trưng của CTU
+# CSS tùy chỉnh màu xanh CTU
 st.markdown("""
     <style>
-    .stButton>button {
-        background-color: #00529c;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 24px;
-        font-weight: bold;
-    }
-    .stButton>button:hover {
-        background-color: #004080;
-        color: white;
-    }
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-        border-color: #00529c;
-        border-radius: 8px;
-    }
+    .stButton>button { background-color: #00529c; color: white; border-radius: 8px; font-weight: bold; }
+    .stButton>button:hover { background-color: #004080; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
-# Giao diện Header
+# Header
 col1, col2 = st.columns([1, 5])
 with col1:
-    # Logo CTU (sử dụng link ảnh public)
     st.image("https://upload.wikimedia.org/wikipedia/vi/6/64/Logo_Đại_học_Cần_Thơ.svg", width=80)
 with col2:
     st.title("CTU Text Generator")
@@ -39,6 +24,9 @@ st.divider()
 
 # Form nhập liệu
 st.subheader("📝 Thông tin yêu cầu")
+
+ho_ten = st.text_input("Họ và tên sinh viên:", placeholder="VD: Nguyễn Văn A")
+
 col_mssv, col_khoa = st.columns(2)
 with col_mssv:
     mssv = st.text_input("Mã số sinh viên (MSSV):", placeholder="VD: B1234567")
@@ -49,7 +37,7 @@ yeu_cau = st.text_area("Nội dung cần viết (*):", placeholder="VD: Viết e
 
 api_key = st.text_input("Nhập Gemini API Key của bạn:", type="password", help="Lấy API Key miễn phí tại Google AI Studio")
 
-# Xử lý khi bấm nút
+# Xử lý tạo văn bản
 if st.button("Tạo văn bản 🚀"):
     if not yeu_cau:
         st.warning("Vui lòng nhập nội dung yêu cầu của bạn!")
@@ -57,15 +45,14 @@ if st.button("Tạo văn bản 🚀"):
         st.warning("Vui lòng nhập Gemini API Key!")
     else:
         try:
-            # Khởi tạo client Gemini
             client = genai.Client(api_key=api_key)
             
-            # Xây dựng Prompt
             prompt = f"""
             Bạn là trợ lý hỗ trợ sinh viên Đại học Cần Thơ (CTU).
             Hãy viết một email/đơn từ dựa trên yêu cầu sau: {yeu_cau}
 
             Thông tin sinh viên:
+            - Họ và tên: {ho_ten if ho_ten else '[Điền Họ và tên]'}
             - MSSV: {mssv if mssv else '[Điền MSSV]'}
             - Khoa: {khoa if khoa else '[Điền Khoa]'}
 
@@ -73,7 +60,7 @@ if st.button("Tạo văn bản 🚀"):
             - Văn phong trang trọng, cực kỳ lịch sự, tôn sư trọng đạo.
             - Bắt đầu bằng "Kính gửi Thầy/Cô,".
             - Xưng "em".
-            - Nêu rõ thông tin sinh viên (MSSV, Khoa).
+            - Nêu rõ thông tin sinh viên (Họ tên, MSSV, Khoa).
             - Kết thúc bằng lời cảm ơn và trân trọng.
             """
             
